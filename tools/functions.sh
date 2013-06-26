@@ -92,13 +92,19 @@ warn_about_cert_expire_dates() {
             echo "DEBUG: $SERVER:$PORT, $END_DATE"
         fi
 
+        # cert already expired, ignore
+        if [ "$END_TIME_EPOCH" -lt "$NOW_EPOCH" ]; then
+            #echo "cert for $SERVER:$PORT already expired"
+            continue
+        fi
+
+        # cert will expire soon
         if [ "$END_TIME_EPOCH" -lt $((NOW_EPOCH + 60*60*24*${MIN_MIN_DAYS})) ]; 
         then
             mail_warning "$WARN_MIN_MIN_MAILTO" \
                 "CERT EXPIRES SOON: $SERVER:$PORT" \
                 "Cert for $SERVER:$PORT expires in less than $MIN_MIN_DAYS days
 Expire date is $END_DATE"
-            return 1
         elif [ "$END_TIME_EPOCH" -lt $((NOW_EPOCH + 60*60*24*${MIN_ESCALATE_DAYS})) ]; 
         then
             mail_warning "$WARN_ESCALATE_MAILTO" \
